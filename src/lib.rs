@@ -173,4 +173,29 @@ impl Satispay {
             .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
         Ok(response)
     }
+    /// API to retrieve shop daily closure
+    pub fn retrieve_daily_closure(
+        &self,
+        date: chrono::Date<chrono::Utc>,
+    ) -> Result<(daily_closure::DailyClosure, PDF), Error> {
+        #[derive(Deserialize)]
+        struct Response {
+            shop_daily_closure: daily_closure::DailyClosure,
+            pdf: PDF,
+        }
+
+        let response_json = &self
+            .sign_and_send::<String>(
+                ureq::put(&format!(
+                    "https://authservices.satispay.com/g_business/v1/daily_closure/{}?generate_pdf=true",
+                    date.format("%Y%m%d").to_string()
+                )),
+                None,
+            )
+            .into_string()
+            .map_err(|_| Error::HTTPError)?;
+        let response: Response = serde_json::from_str(&response_json)
+            .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
+        Ok((response.shop_daily_closure, response.pdf))
+    }
 }

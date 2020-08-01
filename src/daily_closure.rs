@@ -1,12 +1,12 @@
 use serde::Deserialize;
 #[allow(non_camel_case_types)]
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub enum Type {
     CONSUMER,
     SHOP,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 /// The receipt of the daily closure
 pub struct PDF {
     /// The pre-signed url to the daily closure pdf
@@ -22,7 +22,7 @@ pub struct PDF {
     /// The http method that can be invoked on pre-signed url
     pub http_method: String,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct DailyClosure {
     /// Unique ID of the daily closure
     pub id: String,
