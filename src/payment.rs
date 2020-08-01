@@ -5,6 +5,15 @@ pub enum Type {
     TO_BUSINESS,
     REFUND_TO_BUSINESS,
 }
+
+#[allow(non_camel_case_types)]
+#[derive(Serialize)]
+pub enum Action {
+    ACCEPT,
+    CANCEL,
+    CANCEL_OR_REFUND,
+}
+
 #[derive(Deserialize, Serialize)]
 pub enum PaymentStatus {
     PENDING,

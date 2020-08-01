@@ -13,6 +13,11 @@ use std::collections::HashMap;
 pub use utils::SatispayError;
 use utils::*;
 
+#[derive(Serialize)]
+struct Update {
+    action: Action,
+}
+
 pub struct Satispay {
     private_key: rsa::RSAPrivateKey,
     key_id: String,
@@ -151,5 +156,21 @@ impl Satispay {
             serde_json::from_str(&response_json)
                 .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
         Ok(response.get("id").unwrap().to_string())
+    }
+    /// API to retrieve a customer uid from the phone number
+    pub fn update_payment(&self, id: &str, action: Action) -> Result<Payment, Error> {
+        let response_json = &self
+            .sign_and_send::<String>(
+                ureq::put(&format!(
+                    "https://authservices.satispay.com/g_business/v1/payments/{}",
+                    id
+                )),
+                Some(serde_json::to_string(&Update { action }).unwrap()),
+            )
+            .into_string()
+            .map_err(|_| Error::HTTPError)?;
+        let response: Payment = serde_json::from_str(&response_json)
+            .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
+        Ok(response)
     }
 }
