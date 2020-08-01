@@ -3,6 +3,11 @@ name = "satispay"
 version = "0.4.0"
 authors = ["Eugenio Tampieri <eugenio@eutampieri.eu>"]
 edition = "2018"
+description = "Tools to interact with Satispay API"
+repository = "https://github.com/eutampieri/Satispay.rs"
+license = "Unlicense"
+keywords = ["satispay", "api", "electronic-payment"]
+categories = ["api-bindings"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
