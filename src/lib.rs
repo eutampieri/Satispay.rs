@@ -10,7 +10,7 @@ use rsa;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
-pub use utils::SatispayError;
+pub use utils::Error;
 use utils::*;
 
 #[derive(Serialize)]
