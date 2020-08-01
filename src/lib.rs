@@ -160,12 +160,12 @@ impl Satispay {
     /// API to retrieve a customer uid from the phone number
     pub fn update_payment(&self, id: &str, action: Action) -> Result<Payment, Error> {
         let response_json = &self
-            .sign_and_send::<String>(
+            .sign_and_send::<Update>(
                 ureq::put(&format!(
                     "https://authservices.satispay.com/g_business/v1/payments/{}",
                     id
                 )),
-                Some(serde_json::to_string(&Update { action }).unwrap()),
+                Some(Update { action }),
             )
             .into_string()
             .map_err(|_| Error::HTTPError)?;
@@ -197,5 +197,20 @@ impl Satispay {
         let response: Response = serde_json::from_str(&response_json)
             .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
         Ok((response.shop_daily_closure, response.pdf))
+    }
+    /// API to create a payment
+    pub fn create_payment(&self, payment: NewPayment) -> Result<Payment, Error> {
+        let response_json = &self
+            .sign_and_send::<NewPayment>(
+                ureq::put(&format!(
+                    "https://authservices.satispay.com/g_business/v1/payments",
+                )),
+                Some(payment),
+            )
+            .into_string()
+            .map_err(|_| Error::HTTPError)?;
+        let response: Payment = serde_json::from_str(&response_json)
+            .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
+        Ok(response)
     }
 }

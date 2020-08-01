@@ -1,6 +1,6 @@
 [package]
 name = "satispay"
-version = "0.2.0"
+version = "0.4.0"
 authors = ["Eugenio Tampieri <eugenio@eutampieri.eu>"]
 edition = "2018"
 
