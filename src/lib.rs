@@ -1,10 +1,10 @@
 mod daily_closure;
-mod payment;
+pub mod payment;
 mod person;
 mod utils;
 
 pub use daily_closure::*;
-pub use payment::*;
+use payment::*;
 pub use person::*;
 use rsa;
 use serde::{Deserialize, Serialize};
@@ -118,6 +118,22 @@ impl Satispay {
         let response: Response = serde_json::from_str(&response_json)
             .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
         Ok(response.data)
+    }
+    /// API to retrieve the detail of a specific payment
+    pub fn get_payment(&self, id: &str) -> Result<Payment, Error> {
+        let response_json = &self
+            .sign_and_send::<String>(
+                ureq::get(&format!(
+                    "https://authservices.satispay.com/g_business/v1/payments/{}",
+                    id
+                )),
+                None,
+            )
+            .into_string()
+            .map_err(|_| Error::HTTPError)?;
+        let response: Payment = serde_json::from_str(&response_json)
+            .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
+        Ok(response)
     }
     /// API to retrieve a customer uid from the phone number
     pub fn retrieve_customer(&self, phone_number: &str) -> Result<String, Error> {

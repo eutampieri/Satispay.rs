@@ -31,26 +31,35 @@ pub struct DailyClosure {
 #[derive(Deserialize, Serialize)]
 pub struct Payment {
     /// Unique ID of the payment
-    id: String,
+    pub id: String,
+    /// Generated QR code identifier
+    #[serde(default)]
+    pub code_identifier: Option<String>,
     /// Type of payment Rename to type
     #[serde(rename = "type")]
-    payment_type: Type,
+    pub payment_type: Type,
     /// Amount of the payment in cents
-    amount_unit: i64,
+    pub amount_unit: i64,
     /// Currency of the payment
-    currency: String,
+    pub currency: String,
     /// Status of the payment
-    status: PaymentStatus,
+    pub status: PaymentStatus,
     /// If true, the device making the request is responsible for the final status reached by the payment
-    status_ownership: bool,
+    #[serde(default)]
+    pub status_ownership: Option<bool>,
     /// If true, the payment is expired
-    expired: bool,
+    pub expired: bool,
     /// Additional metadata of the payment
-    sender: super::Person,
+    pub sender: super::Person,
     /// The receiver actor of the payment
-    reciever: super::Person,
-    daily_closure: DailyClosure,
-    insert_date: chrono::DateTime<chrono::Utc>,
-    expire_date: chrono::DateTime<chrono::Utc>,
-    external_code: String,
+    pub reciever: super::Person,
+    /// The daily closure of the payment
+    #[serde(default)]
+    pub daily_closure: Option<DailyClosure>,
+    /// Timestamp of payment insertion
+    pub insert_date: chrono::DateTime<chrono::Utc>,
+    /// Timestamp of payment expiration
+    pub expire_date: chrono::DateTime<chrono::Utc>,
+    /// Order ID or payment external identifier
+    pub external_code: String,
 }
