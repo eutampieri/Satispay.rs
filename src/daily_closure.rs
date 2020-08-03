@@ -1,6 +1,6 @@
 use serde::Deserialize;
 #[allow(non_camel_case_types)]
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Eq, PartialEq)]
 pub enum Type {
     CONSUMER,
     SHOP,

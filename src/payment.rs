@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 #[allow(non_camel_case_types)]
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Eq, PartialEq)]
 pub enum Type {
     TO_BUSINESS,
     REFUND_TO_BUSINESS,
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Serialize)]
+#[derive(Serialize, Eq, PartialEq)]
 pub enum Action {
     /// to confirm a pending payment created by the users
     ACCEPT,
@@ -18,7 +18,7 @@ pub enum Action {
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Serialize)]
+#[derive(Serialize, Eq, PartialEq)]
 pub enum Flow {
     MATCH_CODE,
     MATCH_USER,
@@ -26,7 +26,7 @@ pub enum Flow {
     PRE_AUTHORIZED,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Eq, PartialEq)]
 pub enum PaymentStatus {
     PENDING,
     ACCEPTED,
