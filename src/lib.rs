@@ -1,9 +1,11 @@
 mod daily_closure;
+pub mod error;
 pub mod payment;
 mod person;
 mod utils;
 
 pub use daily_closure::*;
+use error::Error;
 use payment::*;
 pub use person::*;
 use rsa;
@@ -11,7 +13,6 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use utils::*;
-pub use utils::Error;
 
 #[derive(Serialize)]
 struct Update {

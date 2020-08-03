@@ -1,3 +1,4 @@
+use super::error::Error;
 use serde::Deserialize;
 
 pub fn push_to_query<'a, T>(query: &mut String, parameter_name: &str, parameter_value: Option<T>)
@@ -25,13 +26,6 @@ pub fn errorize<E>(result: Result<SatispayError, E>) -> Error {
     } else {
         Error::GenericError
     }
-}
-
-#[derive(Debug)]
-pub enum Error {
-    HTTPError,
-    SatispayError { code: i64, message: String },
-    GenericError,
 }
 
 #[derive(Deserialize)]
