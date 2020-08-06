@@ -190,7 +190,7 @@ impl Satispay {
 
         let response_json = &self
             .sign_and_send::<String>(
-                ureq::put(&format!(
+                ureq::get(&format!(
                     "https://authservices.satispay.com/g_business/v1/daily_closure/{}?generate_pdf=true",
                     date.format("%Y%m%d").to_string()
                 )),
@@ -213,8 +213,21 @@ impl Satispay {
             )
             .into_string()
             .map_err(|_| Error::HTTPError)?;
+        println!("{}", response_json);
         let response: Payment = serde_json::from_str(&response_json)
             .map_err(|_| errorize(serde_json::from_str::<SatispayError>(&response_json)))?;
         Ok(response)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_name() {
+        let json = "{\"id\":\"id\",\"code_identifier\":\"code\",\"type\":\"TO_BUSINESS\",\"amount_unit\":700,\"currency\":\"EUR\",\"status\":\"PENDING\",\"expired\":false,\"metadata\":{},\"sender\":{\"type\":\"CONSUMER\"},\"receiver\":{\"id\":\"1234\",\"type\":\"SHOP\"},\"insert_date\":\"2020-08-06T08:08:29.706Z\",\"expire_date\":\"2020-08-06T10:08:29.700Z\",\"description\":\"session=01EF1D0NGQ3J12C5VDW2GD3PSP\",\"flow\":\"CHARGE\",\"external_code\":\"session=01EF1D0NGQ3J12C5VDW2GD3PSP\"}";
+        let data: Payment = serde_json::from_str(json).unwrap();
+        //println!("{:?}", data);
     }
 }

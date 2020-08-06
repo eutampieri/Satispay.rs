@@ -7,7 +7,8 @@ pub enum Type {
 }
 #[derive(Deserialize, Serialize)]
 pub struct Person {
-    pub id: String,
+    #[serde(default)]
+    pub id: Option<String>,
     #[serde(rename = "type")]
     pub person_type: Type,
     pub name: Option<String>,

@@ -26,7 +26,7 @@ pub enum Flow {
     PRE_AUTHORIZED,
 }
 
-#[derive(Deserialize, Serialize, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Eq, PartialEq, Debug)]
 pub enum PaymentStatus {
     PENDING,
     ACCEPTED,
@@ -44,7 +44,7 @@ impl<'a> From<PaymentStatus> for String {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct DailyClosure {
     id: String,
     date: chrono::DateTime<chrono::Utc>,
@@ -73,7 +73,7 @@ pub struct Payment {
     /// Additional metadata of the payment
     pub sender: super::Person,
     /// The receiver actor of the payment
-    pub reciever: super::Person,
+    pub receiver: super::Person,
     /// The daily closure of the payment
     #[serde(default)]
     pub daily_closure: Option<DailyClosure>,
