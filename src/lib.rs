@@ -206,7 +206,7 @@ impl Satispay {
     pub fn create_payment(&self, payment: NewPayment) -> Result<Payment, Error> {
         let response_json = &self
             .sign_and_send::<NewPayment>(
-                ureq::put(&format!(
+                ureq::post(&format!(
                     "https://authservices.satispay.com/g_business/v1/payments",
                 )),
                 Some(payment),
