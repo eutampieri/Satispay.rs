@@ -84,6 +84,9 @@ impl Satispay {
         let signature = base64::encode(self.private_key.sign(padding, &string_digest).unwrap());
         let signature_header = format!("keyId=\"{}\", algorithm=\"rsa-sha256\", headers=\"(request-target) digest host date\", signature=\"{}\"", self.key_id, signature);
         request.auth_kind("Signature", &signature_header);
+        if body != "" {
+            request.set("Content-Type", "application/json");
+        }
         request.send_string(&body)
     }
     /// API to retrieve the list of payments for a specific shop. The shop is automatically filtered based on the KeyID used in the authorisation header.
