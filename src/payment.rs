@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 #[allow(non_camel_case_types)]
-#[derive(Deserialize, Serialize, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Eq, PartialEq, Debug)]
 pub enum Type {
     TO_BUSINESS,
     REFUND_TO_BUSINESS,
 }
 
 #[allow(non_camel_case_types)]
-#[derive(Serialize, Eq, PartialEq)]
+#[derive(Serialize, Eq, PartialEq, Debug)]
 pub enum Action {
     /// to confirm a pending payment created by the users
     ACCEPT,
@@ -49,7 +49,7 @@ pub struct DailyClosure {
     id: String,
     date: chrono::DateTime<chrono::Utc>,
 }
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Payment {
     /// Unique ID of the payment
     pub id: String,
