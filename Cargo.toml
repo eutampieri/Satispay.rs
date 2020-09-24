@@ -1,6 +1,6 @@
 [package]
 name = "satispay"
-version = "0.4.7"
+version = "0.4.8"
 authors = ["Eugenio Tampieri <eugenio@eutampieri.eu>"]
 edition = "2018"
 description = "Tools to interact with Satispay API"
