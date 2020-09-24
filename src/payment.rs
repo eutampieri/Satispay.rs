@@ -82,7 +82,8 @@ pub struct Payment {
     /// Timestamp of payment expiration
     pub expire_date: chrono::DateTime<chrono::Utc>,
     /// Order ID or payment external identifier
-    pub external_code: String,
+    #[serde(default)]
+    pub external_code: Option<String>,
 }
 
 #[derive(Serialize)]
