@@ -8,7 +8,7 @@ pub use daily_closure::*;
 use error::Error;
 use payment::*;
 pub use person::*;
-use rsa;
+use rsa::{self, pkcs1::DecodeRsaPrivateKey};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -20,7 +20,7 @@ struct Update {
 }
 
 pub struct Satispay {
-    private_key: rsa::RSAPrivateKey,
+    private_key: rsa::RsaPrivateKey,
     key_id: String,
 }
 
@@ -37,7 +37,7 @@ impl Satispay {
             .collect::<Vec<&str>>()
             .join("");
         Self {
-            private_key: rsa::RSAPrivateKey::from_pkcs1(
+            private_key: rsa::RsaPrivateKey::from_pkcs1_der(
                 base64::decode(&privkey_file)
                     .expect("Cannot load private key")
                     .as_slice(),
@@ -51,7 +51,7 @@ impl Satispay {
         &self,
         mut request: ureq::Request,
         body: Option<T>,
-    ) -> ureq::Response {
+    ) -> Result<ureq::Response, ureq::Error> {
         let body = body
             .map(|x| serde_json::to_string(&x).unwrap())
             .unwrap_or("".to_string());
@@ -59,13 +59,13 @@ impl Satispay {
             "SHA256={}",
             base64::encode(Sha256::digest(&body.as_bytes()))
         );
-        request.set("Digest", &digest);
+        request = request.set("Digest", &digest);
         // Check the mandatory headers
         if !request.has("host") {
-            request.set("Host", "authservices.satispay.com");
+            request = request.set("Host", "authservices.satispay.com");
         }
         if !request.has("date") {
-            request.set("Date", &chrono::Utc::now().to_rfc2822());
+            request = request.set("Date", &chrono::Utc::now().to_rfc2822());
         }
         let headers = ["digest", "host", "date"]
             .iter()
@@ -73,19 +73,25 @@ impl Satispay {
             .collect::<Vec<String>>()
             .join("\n");
         let string = format!(
-            "(request-target): {} {}{}\n{}",
-            request.get_method().to_lowercase(),
-            request.get_path().unwrap(),
-            request.get_query().unwrap(),
+            "(request-target): {} {}?{}\n{}",
+            request.method().to_lowercase(),
+            request.request_url()?.path(),
+            request
+                .request_url()?
+                .query_pairs()
+                .into_iter()
+                .map(|x| format!("{}={}", x.0, x.1))
+                .collect::<Vec<_>>()
+                .join("&"),
             headers
         );
         let string_digest = Sha256::digest(string.as_bytes());
         let padding = rsa::PaddingScheme::new_pkcs1v15_sign(Some(rsa::Hash::SHA2_256));
         let signature = base64::encode(self.private_key.sign(padding, &string_digest).unwrap());
         let signature_header = format!("keyId=\"{}\", algorithm=\"rsa-sha256\", headers=\"(request-target) digest host date\", signature=\"{}\"", self.key_id, signature);
-        request.auth_kind("Signature", &signature_header);
+        request = request.set("Authorization", &format!("Signature {}", signature_header));
         if body != "" {
-            request.set("Content-Type", "application/json");
+            request = request.set("Content-Type", "application/json");
         }
         request.send_string(&body)
     }
@@ -122,6 +128,7 @@ impl Satispay {
                 )),
                 None,
             )
+            .map_err(|_| Error::HTTPError)?
             .into_string()
             .map_err(|_| Error::HTTPError)?;
         let response: Response = serde_json::from_str(&response_json)
@@ -138,6 +145,7 @@ impl Satispay {
                 )),
                 None,
             )
+            .map_err(|_| Error::HTTPError)?
             .into_string()
             .map_err(|_| Error::HTTPError)?;
         let response: Payment = serde_json::from_str(&response_json)
@@ -154,6 +162,7 @@ impl Satispay {
                 )),
                 None,
             )
+            .map_err(|_| Error::HTTPError)?
             .into_string()
             .map_err(|_| Error::HTTPError)?;
         let response: std::collections::HashMap<String, &str> =
@@ -171,6 +180,7 @@ impl Satispay {
                 )),
                 Some(Update { action }),
             )
+            .map_err(|_| Error::HTTPError)?
             .into_string()
             .map_err(|_| Error::HTTPError)?;
         let response: Payment = serde_json::from_str(&response_json)
@@ -196,6 +206,7 @@ impl Satispay {
                 )),
                 None,
             )
+            .map_err(|_| Error::HTTPError)?
             .into_string()
             .map_err(|_| Error::HTTPError)?;
         let response: Response = serde_json::from_str(&response_json)
@@ -211,6 +222,7 @@ impl Satispay {
                 )),
                 Some(payment),
             )
+            .map_err(|_| Error::HTTPError)?
             .into_string()
             .map_err(|_| Error::HTTPError)?;
         println!("{}", response_json);
