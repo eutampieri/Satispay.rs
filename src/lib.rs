@@ -86,7 +86,7 @@ impl Satispay {
             headers
         );
         let string_digest = Sha256::digest(string.as_bytes());
-        let padding = rsa::PaddingScheme::new_pkcs1v15_sign(Some(rsa::Hash::SHA2_256));
+        let padding = rsa::PaddingScheme::new_pkcs1v15_sign::<sha2::Sha256>();
         let signature = base64::encode(self.private_key.sign(padding, &string_digest).unwrap());
         let signature_header = format!("keyId=\"{}\", algorithm=\"rsa-sha256\", headers=\"(request-target) digest host date\", signature=\"{}\"", self.key_id, signature);
         request = request.set("Authorization", &format!("Signature {}", signature_header));
