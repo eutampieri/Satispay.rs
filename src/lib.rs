@@ -72,17 +72,22 @@ impl Satispay {
             .map(|x| format!("{}: {}", *x, request.header(x).unwrap()))
             .collect::<Vec<String>>()
             .join("\n");
+        let query = request
+            .request_url()?
+            .query_pairs()
+            .into_iter()
+            .map(|x| format!("{}={}", x.0, x.1))
+            .collect::<Vec<_>>()
+            .join("&");
         let string = format!(
-            "(request-target): {} {}?{}\n{}",
+            "(request-target): {} {}{}\n{}",
             request.method().to_lowercase(),
             request.request_url()?.path(),
-            request
-                .request_url()?
-                .query_pairs()
-                .into_iter()
-                .map(|x| format!("{}={}", x.0, x.1))
-                .collect::<Vec<_>>()
-                .join("&"),
+            if query.len() > 0 {
+                format!("?{}", query)
+            } else {
+                "".to_owned()
+            },
             headers
         );
         let string_digest = Sha256::digest(string.as_bytes());
