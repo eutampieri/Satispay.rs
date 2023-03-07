@@ -4,6 +4,7 @@ pub mod payment;
 mod person;
 mod utils;
 
+use base64::{engine::general_purpose, Engine as _};
 pub use daily_closure::*;
 use error::Error;
 use payment::*;
@@ -38,7 +39,8 @@ impl Satispay {
             .join("");
         Self {
             private_key: rsa::RsaPrivateKey::from_pkcs1_der(
-                base64::decode(&privkey_file)
+                general_purpose::STANDARD_NO_PAD
+                    .decode(&privkey_file)
                     .expect("Cannot load private key")
                     .as_slice(),
             )
@@ -57,7 +59,7 @@ impl Satispay {
             .unwrap_or("".to_string());
         let digest = format!(
             "SHA256={}",
-            base64::encode(Sha256::digest(&body.as_bytes()))
+            general_purpose::STANDARD_NO_PAD.encode(Sha256::digest(&body.as_bytes()))
         );
         request = request.set("Digest", &digest);
         // Check the mandatory headers
@@ -91,8 +93,9 @@ impl Satispay {
             headers
         );
         let string_digest = Sha256::digest(string.as_bytes());
-        let padding = rsa::PaddingScheme::new_pkcs1v15_sign::<sha2::Sha256>();
-        let signature = base64::encode(self.private_key.sign(padding, &string_digest).unwrap());
+        let padding = rsa::pkcs1v15::Pkcs1v15Sign::new::<sha2::Sha256>();
+        let signature = general_purpose::STANDARD_NO_PAD
+            .encode(self.private_key.sign(padding, &string_digest).unwrap());
         let signature_header = format!("keyId=\"{}\", algorithm=\"rsa-sha256\", headers=\"(request-target) digest host date\", signature=\"{}\"", self.key_id, signature);
         request = request.set("Authorization", &format!("Signature {}", signature_header));
         if body != "" {
